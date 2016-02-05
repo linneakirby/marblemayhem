@@ -42,39 +42,14 @@ public class GameManager : MonoBehaviour {
 
 	void createBoard(){
 		boardObject = new GameObject ();
+		boardObject.name = "Board";
 		boardmanager = boardObject.AddComponent<Board> () as Board;
-		boardmanager.createBoard ();
+		boardmanager.initBoard (tiles, tileFolder);
 	}
 
 	// Update is called every frame.
 	void Update () {
 		
-	}
-
-	void makeEmptyTile(float x, float y) {
-		GameObject tileObject = new GameObject();			// Create a new empty game object that will hold a gem.
-		Tile tile = tileObject.AddComponent<Tile>();			// Add the Gem.cs script to the object.
-															// We can now refer to the object via this script.
-		tile.transform.parent = tileFolder.transform;			// Set the gem's parent object to be the gem folder.
-		tile.transform.position = new Vector3(x,y,0);		// Position the gem at x,y.								
-		
-		tile.init(x,y,1, this);					// Initialize the gem script.
-		
-		tiles.Add(tile);										// Add the gem to the Gems list for future access.
-		tile.name = "Tile "+tiles.Count;						// Give the gem object a name in the Hierarchy pane.							
-	}
-
-	void makeTurnTile(float x, float y) {
-		GameObject tileObject = new GameObject();			// Create a new empty game object that will hold a gem.
-		Tile tile = tileObject.AddComponent<Tile>();			// Add the Gem.cs script to the object.
-		// We can now refer to the object via this script.
-		tile.transform.parent = tileFolder.transform;			// Set the gem's parent object to be the gem folder.
-		tile.transform.position = new Vector3(x,y,0);		// Position the gem at x,y.								
-
-		tile.init(x,y,2, this);					// Initialize the gem script.
-
-		tiles.Add(tile);										// Add the gem to the Gems list for future access.
-		tile.name = "Tile "+tiles.Count;						// Give the gem object a name in the Hierarchy pane.							
 	}
 
 	void makeMarble(float x, float y){

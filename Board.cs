@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 
 public class Square : MonoBehaviour{
@@ -12,6 +13,7 @@ public class Square : MonoBehaviour{
 	public ArrayList neighbors = new ArrayList();
 
 	public Tile tile;
+	public bool hasTile = false;
 
 	public void init (float x, float y, int i, int j){
 		this.x = x;
@@ -45,6 +47,8 @@ public class Board : MonoBehaviour {
 	public ArrayList turns = new ArrayList();
 	public ArrayList marblestart = new ArrayList();
 	public char[,] charboard;
+	GameObject tileFolder;
+	public List<Tile> tiles;
 
 	public Square[,] squareboard;
 
@@ -71,59 +75,90 @@ public class Board : MonoBehaviour {
 		}
 	}
 
-	public void createBoard(){
+	//creates internal representation of the board
+	public void initBoard(List<Tile> tiles, GameObject tileFolder){
 		charboard = new char[10,18];
 		squareboard = new Square[10, 18];
 		float x = -9.15f;
 		float y = 5.5f;
 		Square square;
+		this.tiles = tiles;
+		this.tileFolder = tileFolder;
 
 		for(int i=0; i<10; i++){
 			for(int j=0; j<18; j++){
 				square = createSquare ((float)(x + (j * 1.08)), (float)(y - i), i, j);
 				squareboard [i, j] = square;
-				if(square.toString().Equals("\n")){
-				}
-				else{
-					placeSquare (square);
-				}
 			}
 		}
 		findNeighbors ();
+		placeSquares ();
 	}
 
-	private void placeSquare(Square square){
-		if (square.toString ().Equals ("W")) {
-			addSquare ("Prefabs/Wall", false, false, square);
-		} else if (square.toString ().Equals ("P")) {
-			addSquare ("Prefabs/Track", true, false, square);
-		} else if (square.toString ().Equals ("A")) {
-			addSquare ("Prefabs/TurnSE", true, true, square);
-		} else if (square.toString ().Equals ("B")) {
-			addSquare ("Prefabs/TurnSW", true, true, square);
-		} else if (square.toString ().Equals ("C")) {
-			addSquare ("Prefabs/TurnNE", true, true, square);
-		} else if (square.toString ().Equals ("D")) {
-			addSquare ("Prefabs/TurnNW", true, true, square);
-		} else if (square.toString ().Equals ("S")) {
-			addSquare ("Prefabs/Switch", false, false, square);
-		} else if (square.toString ().Equals ("T")) {
-			addSquare ("Prefabs/Track", true, false, square);
-			marblestart.Add (square);
+	//creates external representation of the board
+	protected int totalturns = 30;
+	private void placeSquares(){
+		placeRowTurns ();
+		placeColTurns ();
+		placeRemainingTurns ();
+		placeEmptyTiles ();
+	}
+
+	//TODO
+	//place at least one turn in every row
+	private void placeRowTurns(){
+		for (int i = 0; i < 10; i++) { 
+			totalturns--;
 		}
 	}
 
-	private void addSquare(string location, bool valid, bool isTurn, Square square){
-		GameObject tile = Instantiate (Resources.Load (location), new Vector2 (square.x, square.y), Quaternion.identity) as GameObject;
-		if (valid) {
-			validsquares.Add (square);
+	//TODO
+	//place at least one turn in every column
+	private void placeColTurns(){
+		for (int j = 0; j < 18; j++) { 
+			totalturns--;
 		}
-		if (isTurn) {
-			addTurn (tile, square);
+	}
+
+	//TODO
+	private void placeRemainingTurns(){
+		while (totalturns > 0) {
+			totalturns--;
 		}
-		if (square.toString().Equals("S")) {
-			addSwitch (tile, square);
+	}
+
+	private void placeEmptyTiles(){
+		foreach(Square s in squareboard){
+			if (!(s.hasTile)) {
+				makeEmptyTile (s.x, s.y);
+				s.hasTile = true;
+			}
 		}
-		square.addTile(tile);
+	}
+
+	private void makeEmptyTile(float x, float y) {
+		GameObject tileObject = new GameObject();			// Create a new empty game object that will hold a gem.
+		Tile tile = tileObject.AddComponent<Tile>();			// Add the Gem.cs script to the object.
+		// We can now refer to the object via this script.
+		tile.transform.parent = tileFolder.transform;			// Set the gem's parent object to be the gem folder.
+		tile.transform.position = new Vector3(x,y,0);		// Position the gem at x,y.								
+
+		tile.init(x,y,1, this);					// Initialize the gem script.
+
+		tiles.Add(tile);										// Add the gem to the Gems list for future access.
+		tile.name = "Tile "+tiles.Count;						// Give the gem object a name in the Hierarchy pane.							
+	}
+
+	private void makeTurnTile(float x, float y) {
+		GameObject tileObject = new GameObject();			// Create a new empty game object that will hold a gem.
+		Tile tile = tileObject.AddComponent<Tile>();			// Add the Gem.cs script to the object.
+		// We can now refer to the object via this script.
+		tile.transform.parent = tileFolder.transform;			// Set the gem's parent object to be the gem folder.
+		tile.transform.position = new Vector3(x,y,0);		// Position the gem at x,y.								
+
+		tile.init(x,y,2, this);					// Initialize the gem script.
+
+		tiles.Add(tile);										// Add the gem to the Gems list for future access.
+		tile.name = "Tile "+tiles.Count;						// Give the gem object a name in the Hierarchy pane.							
 	}
 }
