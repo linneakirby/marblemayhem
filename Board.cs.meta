@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 3b4088c3ea5af4fbfac8192e377745f8
+timeCreated: 1454698358
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - trackPrefab: {fileID: 160402, guid: 4e6dddf9533e7417eae4ce083a7803d0, type: 2}
+  - wallPrefab: {fileID: 135586, guid: c1a262013ce54480a85444bf88934a4d, type: 2}
+  - turnNEPrefab: {fileID: 172844, guid: aa6256ff7dece4aa5a99b7705407e175, type: 2}
+  - turnNWPrefab: {fileID: 142736, guid: 7b728bdfeaed34db79e58252c1fa5922, type: 2}
+  - turnSEPrefab: {fileID: 125010, guid: bc3978563711f4271a8f1e7ece409126, type: 2}
+  - turnSWPrefab: {fileID: 179412, guid: bccab15ddd8b84863bcbb2cca314fa4a, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
