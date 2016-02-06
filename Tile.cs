@@ -2,34 +2,85 @@
 using System.Collections;
 
 public class Tile : MonoBehaviour {
+	public Vector2 dirN { get { return new Vector2(0, 1); } }
+	public Vector2 dirS { get { return new Vector2(0, -1); } }
+	public Vector2 dirE { get { return new Vector2(1, 0); } }
+	public Vector2 dirW { get { return new Vector2(-1, 0); } }
 
-	private TileModel model;		// The model object.
-	private int row;
-	private int col;
+	public bool N = false;
+	public bool S = false;
+	public bool E = false;
+	public bool W = false;
+
+	private Square square;
+
+
+	private TileModel model1;	
+	private TileModel model2;
+	private float x;
+	private float y;
 	private int tiletype;
-	private GameManager gm;		// A pointer to the manager (not needed here, but potentially useful in general).
+	private GameManager gm;		
 
 	private bool turn = false;
 
-	// The Start function is good for initializing objects, but doesn't allow you to pass in parameters.
-	// For any initialization that requires input, you'll probably want your own init function. 
+	public ArrayList marbles = new ArrayList();
 
-	public void init(float row, float col, int tiletype, GameManager gm) {
-		this.row = (int)row;
-		this.col = (int)col;
+	void Update(){
+		if (Input.GetMouseButtonUp(0) && isTurn() && !hasMarble()) {
+			Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			float mouseX = worldPos.x;
+			float mouseY = worldPos.y;
+			if (mouseX >= x-.5f && mouseX <= x+.5f && mouseY >= y-.5f && mouseY <= y+.5f) {
+				rotateR ();
+			}
+		}
+		if (Input.GetMouseButtonUp(1) && isTurn() && !hasMarble()) {
+			Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			float mouseX = worldPos.x;
+			float mouseY = worldPos.y;
+			if (mouseX >= x-.5f && mouseX <= x+.5f && mouseY >= y-.5f && mouseY <= y+.5f) {
+				rotateL ();
+			}
+		}
+	}
+
+	public void init(int tiletype, Square s, GameManager gm) {
+		this.x = s.x;
+		this.y = s.y;
 		this.tiletype = tiletype;
 		this.gm = gm;
+		this.square = s;
 
 		checkTurn ();
 
-		var modelObject = GameObject.CreatePrimitive(PrimitiveType.Quad);	// Create a quad object for holding the gem texture.
-		model = modelObject.AddComponent<TileModel>();						// Add a MarbleModel script to control visuals of the gem.
-		model.init(row, col, tiletype, this);					
+		if (isTurn ()) {
+			var modelObject2 = GameObject.CreatePrimitive (PrimitiveType.Quad);
+
+			model2 = modelObject2.AddComponent<TileModel> ();
+			model2.init (x, y, 2, this);
+		}
+		addEmptyTexture ();
+	}
+
+	private bool hasMarble(){
+		if (marbles.Count > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	private void addEmptyTexture(){
+		var modelObject1 = GameObject.CreatePrimitive (PrimitiveType.Quad);	
+		model1 = modelObject1.AddComponent<TileModel> ();						
+		model1.init (x, y, 1, this);
 	}
 
 	private void checkTurn(){
 		if (tiletype == 2) {
 			turn = true;
+			S = true;
+			E = true;
 		}
 	}
 
@@ -38,6 +89,68 @@ public class Tile : MonoBehaviour {
 			return true;
 		}
 		return false;
+	}
+
+	private void rotateR(){
+		if (S && E) {
+			E = false;
+			W = true;
+		} else if (S && W) {
+			S = false;
+			N = true;
+		} else if (N && W) {
+			W = false;
+			E = true;
+		} else {
+			N = false;
+			S = true;
+		}
+		this.transform.Rotate (0, 0, -90);
+	}
+
+	private void rotateL(){
+		if (S && E) {
+			S = false;
+			N = true;
+		} else if (N && E) {
+			E = false;
+			W = true;
+		} else if (N && W) {
+			N = false;
+			S = true;
+		} else {
+			W = false;
+			E = true;
+		}
+		this.transform.Rotate (0, 0, 90);
+	}
+
+	public Vector2 getNewDirection (Vector2 direction){
+		if (direction.Equals (dirN) && S) {
+			return checkEW ();
+		} else if (direction.Equals (dirS) && N) {
+			return checkEW ();
+		} else if (direction.Equals (dirE) && W) {
+			return checkNS ();
+		} else if (direction.Equals (dirW) && E) {
+			return checkNS ();
+		} else {
+			return direction;
+		}
+	}
+
+	private Vector2 checkNS(){
+		if (N) {
+			return dirN;
+		}
+		return dirS;
+	}
+
+	private Vector2 checkEW(){
+		if (E) {
+			return dirE;
+		}
+		return dirW;
 	}
 }
 

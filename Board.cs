@@ -49,20 +49,33 @@ public class Board : MonoBehaviour {
 	public char[,] charboard;
 	GameObject tileFolder;
 	public List<Tile> tiles;
+	int tiletype;
+	GameObject squareFolder;
+	public List<Square> squares;
+
+	public GameManager gm;
 
 	public Square[,] squareboard;
+
+
 
 	private Square createSquare (float x, float y, int i, int j){
 		GameObject squareObject = new GameObject ();
 		Square square = squareObject.AddComponent<Square> () as Square;
+		square.transform.parent = squareFolder.transform;
+
 		square.init (x, y, i, j);
+
+		square.transform.position = new Vector3(square.x,square.y,0);
+		squares.Add(square);										
+		square.name = "Square "+squares.Count;
 		return square;
 	}
 
+	//TODO - need to make the board toroidal
 	private void findNeighbors(){
 		foreach (Square square in squareboard) {
 			for (int k = square.i - 1; k <= square.i + 1; k++) {
-				//for (int l = square.j - 1; l <= square.j + 1; l++) {
 				if (k >= 0 && k < 10 && k != square.i) {
 					square.neighbors.Add (squareboard [k, square.j]);
 				}
@@ -76,23 +89,37 @@ public class Board : MonoBehaviour {
 	}
 
 	//creates internal representation of the board
-	public void initBoard(List<Tile> tiles, GameObject tileFolder){
+	public void initBoard(GameManager gm){
+		this.gm = gm;
+		createTileFolder ();
+		createSquareFolder ();
 		charboard = new char[10,18];
 		squareboard = new Square[10, 18];
-		float x = -9.15f;
-		float y = 5.5f;
+		float x = -9.05f;
+		float y = 4.5f;
 		Square square;
-		this.tiles = tiles;
-		this.tileFolder = tileFolder;
 
 		for(int i=0; i<10; i++){
 			for(int j=0; j<18; j++){
-				square = createSquare ((float)(x + (j * 1.08)), (float)(y - i), i, j);
+				square = createSquare ((float)(x + (j * 1.065)), (float)(y - i), i, j);
 				squareboard [i, j] = square;
 			}
 		}
 		findNeighbors ();
 		placeSquares ();
+	}
+
+	void createSquareFolder(){
+		squareFolder = new GameObject ();
+		squareFolder.name = "Squares";
+		squares = new List<Square>();
+	}
+
+	void createTileFolder(){
+		tileFolder = new GameObject();  
+		tileFolder.name = "Tiles";		
+		tiles = new List<Tile>();
+		tiletype = 1;
 	}
 
 	//creates external representation of the board
@@ -103,26 +130,30 @@ public class Board : MonoBehaviour {
 		placeRemainingTurns ();
 		placeEmptyTiles ();
 	}
-
-	//TODO
+		
 	//place at least one turn in every row
 	private void placeRowTurns(){
 		for (int i = 0; i < 10; i++) { 
+			int j = (int)(Random.value * 100) % 18;
+			makeTurnTile (squareboard [i, j]);
 			totalturns--;
 		}
 	}
-
-	//TODO
+		
 	//place at least one turn in every column
 	private void placeColTurns(){
 		for (int j = 0; j < 18; j++) { 
+			int i = (int)(Random.value * 100) % 10;
+			makeTurnTile (squareboard [i, j]);
 			totalturns--;
 		}
 	}
-
-	//TODO
+		
 	private void placeRemainingTurns(){
 		while (totalturns > 0) {
+			int i = (int)(Random.value * 100) % 10;
+			int j = (int)(Random.value * 100) % 18;
+			makeTurnTile (squareboard [i, j]);
 			totalturns--;
 		}
 	}
@@ -130,35 +161,42 @@ public class Board : MonoBehaviour {
 	private void placeEmptyTiles(){
 		foreach(Square s in squareboard){
 			if (!(s.hasTile)) {
-				makeEmptyTile (s.x, s.y);
-				s.hasTile = true;
+				makeEmptyTile (s);
 			}
 		}
 	}
 
-	private void makeEmptyTile(float x, float y) {
-		GameObject tileObject = new GameObject();			// Create a new empty game object that will hold a gem.
-		Tile tile = tileObject.AddComponent<Tile>();			// Add the Gem.cs script to the object.
-		// We can now refer to the object via this script.
-		tile.transform.parent = tileFolder.transform;			// Set the gem's parent object to be the gem folder.
-		tile.transform.position = new Vector3(x,y,0);		// Position the gem at x,y.								
-
-		tile.init(x,y,1, this);					// Initialize the gem script.
-
-		tiles.Add(tile);										// Add the gem to the Gems list for future access.
-		tile.name = "Tile "+tiles.Count;						// Give the gem object a name in the Hierarchy pane.							
+	private void updateSquare(Square s, Tile t){
+		s.tile = t;
+		s.hasTile = true;
 	}
 
-	private void makeTurnTile(float x, float y) {
-		GameObject tileObject = new GameObject();			// Create a new empty game object that will hold a gem.
-		Tile tile = tileObject.AddComponent<Tile>();			// Add the Gem.cs script to the object.
-		// We can now refer to the object via this script.
-		tile.transform.parent = tileFolder.transform;			// Set the gem's parent object to be the gem folder.
-		tile.transform.position = new Vector3(x,y,0);		// Position the gem at x,y.								
+	private Tile initTile(Square s){
+		GameObject tileObject = new GameObject();			
+		Tile tile = tileObject.AddComponent<Tile>();			
 
-		tile.init(x,y,2, this);					// Initialize the gem script.
+		tile.transform.parent = tileFolder.transform;			
+		tile.transform.position = new Vector3(s.x,s.y,0);
 
-		tiles.Add(tile);										// Add the gem to the Gems list for future access.
-		tile.name = "Tile "+tiles.Count;						// Give the gem object a name in the Hierarchy pane.							
+		tiles.Add(tile);										
+		tile.name = "Tile "+tiles.Count;
+
+		return tile;
+	}
+
+	private void makeEmptyTile(Square s) {
+		Tile tile = initTile (s);						
+		tile.init(1, s, gm);					
+		updateSquare (s, tile);													
+	}
+
+	private void makeTurnTile(Square s) {
+		Tile tile = initTile (s);									
+		tile.init(2, s, gm);	
+		updateSquare (s, tile);													
+	}
+
+	public Square get(int i, int j){
+		return squareboard [i, j];
 	}
 }

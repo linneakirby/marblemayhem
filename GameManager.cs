@@ -1,15 +1,16 @@
-// Tom Wexler
-// Example program to help you get started with your project.
+// Linnea Kirby
+// Controls the game (i.e. the marbles)
 
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
-	
-	GameObject tileFolder;	// This will be an empty game object used for organizing objects in the Hierarchy pane.
-	List<Tile> tiles;			// This list will hold the gem objects that are created.
-	int tiletype; 			// The next gem type to be created.
+	public Vector2 dirN { get { return new Vector2(0, 1); } }
+	public Vector2 dirS { get { return new Vector2(0, -1); } }
+	public Vector2 dirE { get { return new Vector2(1, 0); } }
+	public Vector2 dirW { get { return new Vector2(-1, 0); } }
+
 	List<Marble> marbles;
 	GameObject marbleFolder;
 	GameObject boardObject;
@@ -19,71 +20,71 @@ public class GameManager : MonoBehaviour {
 	public float turnProbability = .8f;
 
 	public bool go = false;
-	
-	// Start is called once when the script is created.
+
+	public int numMarbles = 0;
+
 	void Start () {
-		createTileFolder ();
-		createMarbleFolder ();
 		createBoard ();
-	}
-
-	void createTileFolder(){
-		tileFolder = new GameObject();  
-		tileFolder.name = "Tiles";		// The name of a game object is visible in the hierarchy pane.
-		tiles = new List<Tile>();
-		tiletype = 1;
-	}
-
-	void createMarbleFolder(){
-		marbleFolder = new GameObject ();
-		marbleFolder.name = "Marbles";
-		marbles = new List<Marble>();
 	}
 
 	void createBoard(){
 		boardObject = new GameObject ();
 		boardObject.name = "Board";
 		boardmanager = boardObject.AddComponent<Board> () as Board;
-		boardmanager.initBoard (tiles, tileFolder);
+		boardmanager.initBoard (this);
 	}
 
-	// Update is called every frame.
+	// Start button that disappears once clicked (and triggers the start of the game)
+	void OnGUI () {
+		int xpos = ((Screen.width)-(150))/2;
+		int ypos = ((Screen.height)-(60))/2;
+		if (!go && GUI.Button (new Rect (xpos, ypos, 150, 60), "START")) {
+			go = true;
+			beginLevel();
+		}
+	}
+		
 	void Update () {
 		
 	}
 
-	void makeMarble(float x, float y){
-		GameObject marbleObject = new GameObject();			// Create a new empty game object that will hold a gem.
-		Marble marble = marbleObject.AddComponent<Marble>();			// Add the Gem.cs script to the object.
-		// We can now refer to the object via this script.
-		marble.transform.parent = marbleFolder.transform;			// Set the gem's parent object to be the gem folder.
-		marble.transform.position = new Vector3(x,y,0);		// Position the gem at x,y.								
+	void makeMarble(int direction, Square s){
+		GameObject marbleObject = new GameObject();	
+		Marble marble = marbleObject.AddComponent<Marble>();
 
-		marble.init(x,y, this);					// Initialize the gem script.
+		marble.transform.parent = marbleFolder.transform;			
+		marble.transform.position = new Vector3(s.x,s.y,0);										
 
-		marbles.Add(marble);										// Add the gem to the Gems list for future access.
-		marble.name = "Marble "+tiles.Count;						// Give the gem object a name in the Hierarchy pane.
+		marble.init(direction,s, this);					
+
+		marbles.Add(marble);										
+		marble.name = "Marble "+marbles.Count;						
 	}
 
 	private void beginLevel(){
 		createMarbles ();
 	}
 
-	void createMarbles(){
-		foreach (Square s in boardmanager.marblestart) {
-			makeMarble (s.x, s.y);
+	private void createMarbleFolder(){
+		marbleFolder = new GameObject ();
+		marbleFolder.name = "Marbles";
+		marbles = new List<Marble>();
+	}
+
+	private void createMarbles(){
+		createMarbleFolder ();
+		while (numMarbles < 5) {
+			int i = (int)(Random.value * 100) % 10;
+			int j = (int)(Random.value * 100) % 18;
+
+			int direction = (int)(Random.value * 100) % 4;
+
+			Square s = boardmanager.get (i, j);
+			makeMarble (direction, s);
+			numMarbles++;
 		}
 	}
 
-	// This function defines the buttons, and dictates what happens when they're pressed.
-	void OnGUI () {
-		if (!go && GUI.Button (new Rect (300, 165, 150, 60), "START")) {
-			go = true;
-			beginLevel();
-		}
-			// Printing goes to the Console pane.  
-			// If an object doesn't extend monobehavior, calling print won't do anything.  
-			// Make sure "Collapse" isn't selected in the Console pane if you want to see duplicate messages.
-	}
+
 
 }

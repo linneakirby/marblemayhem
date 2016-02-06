@@ -16,14 +16,18 @@ public class TileModel : MonoBehaviour
 		this.col = (int)col;
 		this.tiletype = tiletype;
 
-		transform.parent = owner.transform;					// Set the model's parent to the gem.
-		transform.localPosition = new Vector3(0,0,0);		// Center the model on the parent.
-		name = "Tile Model";									// Name the object.
+		transform.parent = owner.transform;					
+		transform.localPosition = new Vector3(0,0,0);		
+		name = "Tile Model";									
 
-		mat = GetComponent<Renderer>().material;								// Get the material component of this quad object.
-		mat.mainTexture = Resources.Load<Texture2D>("Textures/tile"+tiletype);	// Set the texture.  Must be in Resources folder.
-		mat.color = new Color(1,1,1);											// Set the color (easy way to tint things).
-		mat.shader = Shader.Find ("Transparent/Diffuse");						// Tell the renderer that our textures have transparency. 
+		addTexture ();
+	}
+		
+	private void addTexture(){
+		mat = GetComponent<Renderer>().material;
+		mat.mainTexture = Resources.Load<Texture2D>("Textures/tile"+tiletype);	
+		mat.color = new Color(1,1,1);											
+		mat.shader = Shader.Find ("Transparent/Diffuse");
 	}
 
 	void Start () {
@@ -31,10 +35,6 @@ public class TileModel : MonoBehaviour
 	}
 
 	void Update () {
-
-		// Incrememnt the clock based on how much time has elapsed since the previous update.
-		// Using deltaTime is critical for animation and movement, since the time between each call
-		// to Update is unpredictable.
 		clock = clock + Time.deltaTime;
 	}
 }

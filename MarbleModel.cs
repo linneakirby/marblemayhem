@@ -3,25 +3,32 @@ using System.Collections;
 
 public class MarbleModel : MonoBehaviour
 {
-	private int row;
-	private int col;
-	private float clock;		// Keep track of time since creation for animation.
-	private Marble owner;			// Pointer to the parent object.
-	private Material mat;		// Material for setting/changing texture and color.
+	public Vector2 dirN { get { return new Vector2(0, 1); } }
+	public Vector2 dirS { get { return new Vector2(0, -1); } }
+	public Vector2 dirE { get { return new Vector2(1, 0); } }
+	public Vector2 dirW { get { return new Vector2(-1, 0); } }
 
-	public void init(float row, float col, Marble owner) {
+	private float x;
+	private float y;
+	private float clock;		
+	private Marble owner;		
+	private Material mat;		
+
+	public void init(float x, float y, Marble owner) {
 		this.owner = owner;
-		this.row = (int)row;
-		this.col = (int)col;
+		this.x = x;
+		this.y = y;
 
-		transform.parent = owner.transform;					// Set the model's parent to the gem.
-		transform.localPosition = new Vector3(0,0,0);		// Center the model on the parent.
-		name = "Marble Model";									// Name the object.
+		transform.parent = owner.transform;					
+		transform.localPosition = new Vector3(0,0,0);		
+		name = "Marble Model";									
 
-		mat = GetComponent<Renderer>().material;								// Get the material component of this quad object.
-		mat.mainTexture = Resources.Load<Texture2D>("Textures/marble");	// Set the texture.  Must be in Resources folder.
-		mat.color = new Color(1,1,1);											// Set the color (easy way to tint things).
-		mat.shader = Shader.Find ("Transparent/Diffuse");						// Tell the renderer that our textures have transparency. 
+		//TODO - fix render queue!
+		mat = GetComponent<Renderer>().material;	
+		mat.renderQueue = 4000;
+		mat.mainTexture = Resources.Load<Texture2D>("Textures/marble");	
+		mat.color = new Color(1,1,1);											
+		mat.shader = Shader.Find ("Transparent/Diffuse");	
 	}
 
 	void Start () {
@@ -29,10 +36,6 @@ public class MarbleModel : MonoBehaviour
 	}
 
 	void Update () {
-
-		// Incrememnt the clock based on how much time has elapsed since the previous update.
-		// Using deltaTime is critical for animation and movement, since the time between each call
-		// to Update is unpredictable.
 		clock = clock + Time.deltaTime;
 	}
 }
