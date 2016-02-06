@@ -12,19 +12,20 @@ public class Tile : MonoBehaviour {
 	public bool E = false;
 	public bool W = false;
 
-	private Square square;
-
-
 	private TileModel model1;	
 	private TileModel model2;
-	private float x;
-	private float y;
+	public float x;
+	public float y;
+	public int i;
+	public int j;
 	private int tiletype;
 	private GameManager gm;		
 
 	private bool turn = false;
 
 	public ArrayList marbles = new ArrayList();
+
+	public ArrayList neighbors = new ArrayList();
 
 	void Update(){
 		if (Input.GetMouseButtonUp(0) && isTurn() && !hasMarble()) {
@@ -45,22 +46,33 @@ public class Tile : MonoBehaviour {
 		}
 	}
 
-	public void init(int tiletype, Square s, GameManager gm) {
-		this.x = s.x;
-		this.y = s.y;
-		this.tiletype = tiletype;
+	public ArrayList getNeighbors(){
+		return neighbors;
+	}
+
+	public void init(int i, int j, float x, float y, GameManager gm) {
+		this.x = x;
+		this.y = y;
+		this.i = i;
+		this.j = j;
 		this.gm = gm;
-		this.square = s;
+		this.tiletype = 1;
 
-		checkTurn ();
+		//addEmptyTexture ();
+	}
 
-		if (isTurn ()) {
-			var modelObject2 = GameObject.CreatePrimitive (PrimitiveType.Quad);
+	public void addTurn(){
+		this.tiletype = 2;
 
-			model2 = modelObject2.AddComponent<TileModel> ();
-			model2.init (x, y, 2, this);
-		}
-		addEmptyTexture ();
+		turn = true;
+		S = true;
+		E = true;
+
+		var modelObject2 = GameObject.CreatePrimitive (PrimitiveType.Quad);
+
+		model2 = modelObject2.AddComponent<TileModel> ();
+		model2.init (x, y, 2, this);
+
 	}
 
 	private bool hasMarble(){
@@ -70,19 +82,12 @@ public class Tile : MonoBehaviour {
 		return false;
 	}
 
-	private void addEmptyTexture(){
+	public void addEmptyTexture(){
 		var modelObject1 = GameObject.CreatePrimitive (PrimitiveType.Quad);	
 		model1 = modelObject1.AddComponent<TileModel> ();						
 		model1.init (x, y, 1, this);
 	}
-
-	private void checkTurn(){
-		if (tiletype == 2) {
-			turn = true;
-			S = true;
-			E = true;
-		}
-	}
+		
 
 	public bool isTurn(){
 		if (turn) {

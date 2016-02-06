@@ -10,16 +10,32 @@ public class Marble : MonoBehaviour {
 	private MarbleModel model;		
 	private float x;
 	private float y;
-	public float speed = 1.5f;
+	public float speed = .5f;
 	public Vector2 direction;
 	private GameManager gm;		
 
-	public Square currSquare;
-	public Square nextSquare;
+	public Tile currTile;
+	public Tile nextTile;
 
 	public Vector3 currpos;
 	public Vector3 destpos;
 	public float destdist;
+
+	public void init(int direction, Tile tile, GameManager gm) {
+		this.x = tile.x;
+		this.y = tile.y;
+		this.gm = gm;
+
+		currTile = tile;
+		currTile.marbles.Add (this);
+		getNextSquare ();
+
+		var modelObject = GameObject.CreatePrimitive(PrimitiveType.Quad);	
+		modelObject.layer = 8;
+		model = modelObject.AddComponent<MarbleModel>();	
+		getDirection (direction);
+		model.init(x, y, this);	
+	}
 
 	void Update(){
 		updateCoordinates ();
@@ -27,25 +43,24 @@ public class Marble : MonoBehaviour {
 		move ();
 	}
 
-	public void init(int direction, Square square, GameManager gm) {
-		this.x = square.x;
-		this.y = square.y;
-		getDirection (direction);
-		this.gm = gm;
-
-		currSquare = square;
-		currSquare.tile.marbles.Add (this);
-		checkTurn ();
-		getNextSquare ();
-
-		var modelObject = GameObject.CreatePrimitive(PrimitiveType.Quad);	
-		model = modelObject.AddComponent<MarbleModel>();						
-		model.init(x, y, this);						
+	private void move(){
+		if ((direction * speed * Time.deltaTime).magnitude < destdist) {
+			this.gameObject.transform.Translate (direction * speed * Time.deltaTime);
+		}
+		else {
+			print ("ELSE");
+			this.gameObject.transform.position = new Vector3(nextTile.x, nextTile.y, -1);
+			updateCurrSquare ();
+			checkTurn ();
+			getNextSquare ();
+		}
 	}
 
 	private void checkTurn(){
-		if (currSquare.tile.isTurn ()) {
-			direction = currSquare.tile.getNewDirection (direction);
+		print ("inside check turn!");
+		print (currTile.isTurn ());
+		if (currTile.isTurn ()) {
+			direction = currTile.getNewDirection (direction);
 		} 
 	}
 
@@ -54,13 +69,13 @@ public class Marble : MonoBehaviour {
 			direction = N;
 		} else if (dir == 1) {
 			direction = E;
-			//model.transform.Rotate (0, 0, 270);
+			model.transform.eulerAngles = new Vector3(0,0,270);
 		} else if (dir == 2) {
 			direction = S;
-			//model.transform.Rotate (0, 0, 180);
+			model.transform.eulerAngles = new Vector3(0,0,180);
 		} else {
 			direction = W;
-			//model.transform.Rotate (0, 0, 90);
+			model.transform.eulerAngles = new Vector3(0,0,90);
 		}
 
 	}
@@ -71,7 +86,7 @@ public class Marble : MonoBehaviour {
 	}
 
 	private void updateDistances(){
-		currpos = new Vector3 (this.x, this.y, 0);
+		currpos = new Vector3 (this.x, this.y, -1);
 		if (currpos.magnitude > destpos.magnitude) {
 			destdist = (currpos-destpos).magnitude;
 		} else {
@@ -79,34 +94,23 @@ public class Marble : MonoBehaviour {
 		}
 	}
 
-	private void move(){
-		if ((direction * speed * Time.deltaTime).magnitude < destdist) {
-			this.gameObject.transform.Translate (direction * speed * Time.deltaTime);
-		}
-		else {
-			this.gameObject.transform.position = new Vector3(nextSquare.x, nextSquare.y, 0);
-			updateCurrSquare ();
-			getNextSquare ();
-		}
-	}
-
 	//removes itself from currSquare's list of marbles, updates currSquare, and adds itself to the new currSquare's list of marbles
 	private void updateCurrSquare(){
-		currSquare.tile.marbles.Remove (this);
-		currSquare = nextSquare;
-		currSquare.tile.marbles.Add (this);
+		currTile.marbles.Remove (this);
+		currTile = nextTile;
+		currTile.marbles.Add (this);
 	}
 
 	private void getNextSquare(){
 		if (direction.Equals (N)) {
-			nextSquare = (Square)currSquare.getNeighbors() [0];
+			nextTile = (Tile)currTile.getNeighbors() [0];
 		} else if (direction.Equals (S)) {
-			nextSquare = (Square)currSquare.getNeighbors() [1];
+			nextTile = (Tile)currTile.getNeighbors() [1];
 		} else if (direction.Equals (E)) {
-			nextSquare = (Square)currSquare.getNeighbors() [3];
+			nextTile = (Tile)currTile.getNeighbors() [3];
 		} else {
-			nextSquare = (Square)currSquare.getNeighbors() [2];
+			nextTile = (Tile)currTile.getNeighbors() [2];
 		}
-		destpos = new Vector3 (nextSquare.x, nextSquare.y, 0);
+		destpos = new Vector3 (nextTile.x, nextTile.y, -1);
 	}
 }

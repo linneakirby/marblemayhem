@@ -12,7 +12,7 @@ public class MarbleModel : MonoBehaviour
 	private float y;
 	private float clock;		
 	private Marble owner;		
-	private Material mat;		
+	private Material mat;	
 
 	public void init(float x, float y, Marble owner) {
 		this.owner = owner;
@@ -20,10 +20,9 @@ public class MarbleModel : MonoBehaviour
 		this.y = y;
 
 		transform.parent = owner.transform;					
-		transform.localPosition = new Vector3(0,0,0);		
+		transform.localPosition = new Vector3(0,0,-1);		
 		name = "Marble Model";									
 
-		//TODO - fix render queue!
 		mat = GetComponent<Renderer>().material;	
 		mat.renderQueue = 4000;
 		mat.mainTexture = Resources.Load<Texture2D>("Textures/marble");	
@@ -37,6 +36,7 @@ public class MarbleModel : MonoBehaviour
 
 	void Update () {
 		clock = clock + Time.deltaTime;
+		transform.eulerAngles = new Vector3(0,0,-360*clock*owner.speed);
 	}
 }
 

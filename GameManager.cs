@@ -48,14 +48,15 @@ public class GameManager : MonoBehaviour {
 		
 	}
 
-	void makeMarble(int direction, Square s){
+	void makeMarble(int direction, Tile t){
 		GameObject marbleObject = new GameObject();	
+		marbleObject.layer = 8;
 		Marble marble = marbleObject.AddComponent<Marble>();
 
 		marble.transform.parent = marbleFolder.transform;			
-		marble.transform.position = new Vector3(s.x,s.y,0);										
+		marble.transform.position = new Vector3(t.x,t.y,-1);
 
-		marble.init(direction,s, this);					
+		marble.init(direction,t, this);					
 
 		marbles.Add(marble);										
 		marble.name = "Marble "+marbles.Count;						
@@ -73,14 +74,14 @@ public class GameManager : MonoBehaviour {
 
 	private void createMarbles(){
 		createMarbleFolder ();
-		while (numMarbles < 5) {
+		while (numMarbles < 1) {
 			int i = (int)(Random.value * 100) % 10;
 			int j = (int)(Random.value * 100) % 18;
 
 			int direction = (int)(Random.value * 100) % 4;
 
-			Square s = boardmanager.get (i, j);
-			makeMarble (direction, s);
+			Tile t = boardmanager.get (i, j);
+			makeMarble (direction, t);
 			numMarbles++;
 		}
 	}
