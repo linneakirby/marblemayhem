@@ -8,11 +8,11 @@ public class Marble : MonoBehaviour {
 	public Vector2 W { get { return new Vector2(-1, 0); } }
 
 	private MarbleModel model;		
-	private float x;
-	private float y;
+	public float x;
+	public float y;
 	public float speed = .5f;
 	public Vector2 direction;
-	private GameManager gm;		
+	public GameManager gm;		
 
 	public Tile currTile;
 	public Tile nextTile;
@@ -28,37 +28,70 @@ public class Marble : MonoBehaviour {
 
 		currTile = tile;
 		currTile.marbles.Add (this);
+		getDirection (direction);
 		getNextSquare ();
 
 		var modelObject = GameObject.CreatePrimitive(PrimitiveType.Quad);	
 		modelObject.layer = 8;
 		model = modelObject.AddComponent<MarbleModel>();	
-		getDirection (direction);
 		model.init(x, y, this);	
 	}
 
 	void Update(){
-		updateCoordinates ();
-		updateDistances ();
-		move ();
+		if (gm.go) {
+			updateCoordinates ();
+			updateDistances ();
+			move ();
+		}
+	}
+
+	private void updateLocation(){
+		checkTurn ();
+		getNextSquare ();
 	}
 
 	private void move(){
-		if ((direction * speed * Time.deltaTime).magnitude < destdist) {
+		if (this.x > 9.55) {
+			this.gameObject.transform.position = new Vector3 ((nextTile.x - .5f), nextTile.y, -1f);
+			updateCurrSquare ();
+			this.x = currTile.x-.5f;
+			this.y = currTile.y;
+			updateLocation ();
+		} else if (this.x < -9.55) {
+			this.gameObject.transform.position = new Vector3 ((nextTile.x + .5f), nextTile.y, -1f);
+			updateCurrSquare ();
+			this.x = currTile.x+.5f;
+			this.y = currTile.y;
+			updateLocation ();
+		} else if (this.y > 5f) {
+			this.gameObject.transform.position = new Vector3 (nextTile.x, (nextTile.y - .5f), -1f);
+			updateCurrSquare ();
+			this.x = currTile.x;
+			this.y = currTile.y-.5f;
+			updateLocation ();
+		} else if (this.y < -5f) {
+			this.gameObject.transform.position = new Vector3 (nextTile.x, (nextTile.y + .5f), -1f);
+			updateCurrSquare ();
+			this.x = currTile.x;
+			this.y = currTile.y+.5f;
+			updateLocation ();
+		}
+		else if ((direction * speed * Time.deltaTime).magnitude < destdist) {
 			this.gameObject.transform.Translate (direction * speed * Time.deltaTime);
 		}
 		else {
-			print ("ELSE");
-			this.gameObject.transform.position = new Vector3(nextTile.x, nextTile.y, -1);
+			//print ("ELSE");
+			this.gameObject.transform.position = new Vector3(nextTile.x, nextTile.y, -1f);
 			updateCurrSquare ();
-			checkTurn ();
-			getNextSquare ();
+			this.x = currTile.x;
+			this.y = currTile.y;
+			updateLocation ();
 		}
 	}
 
 	private void checkTurn(){
-		print ("inside check turn!");
-		print (currTile.isTurn ());
+		//print ("inside check turn!");
+		//print (currTile.isTurn ());
 		if (currTile.isTurn ()) {
 			direction = currTile.getNewDirection (direction);
 		} 
@@ -69,13 +102,13 @@ public class Marble : MonoBehaviour {
 			direction = N;
 		} else if (dir == 1) {
 			direction = E;
-			model.transform.eulerAngles = new Vector3(0,0,270);
+			//model.transform.eulerAngles = new Vector3(0,0,270);
 		} else if (dir == 2) {
 			direction = S;
-			model.transform.eulerAngles = new Vector3(0,0,180);
+			//model.transform.eulerAngles = new Vector3(0,0,180);
 		} else {
 			direction = W;
-			model.transform.eulerAngles = new Vector3(0,0,90);
+			//model.transform.eulerAngles = new Vector3(0,0,90);
 		}
 
 	}
@@ -98,6 +131,8 @@ public class Marble : MonoBehaviour {
 	private void updateCurrSquare(){
 		currTile.marbles.Remove (this);
 		currTile = nextTile;
+		//this.x = currTile.x;
+		//this.y = currTile.y;
 		currTile.marbles.Add (this);
 	}
 

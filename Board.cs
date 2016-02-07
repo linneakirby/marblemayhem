@@ -84,8 +84,10 @@ public class Board : MonoBehaviour {
 	private void placeRowTurns(){
 		for (int i = 0; i < 10; i++) { 
 			int j = (int)(Random.value * 100) % 18;
-			makeTurnTile (board [i, j]);
-			totalturns--;
+			if (!(board [i, j].isTurn ())) {
+				makeTurnTile (board [i, j]);
+				totalturns--;
+			}
 		}
 	}
 		
@@ -93,8 +95,10 @@ public class Board : MonoBehaviour {
 	private void placeColTurns(){
 		for (int j = 0; j < 18; j++) { 
 			int i = (int)(Random.value * 100) % 10;
-			makeTurnTile (board [i, j]);
-			totalturns--;
+			if (!(board [i, j].isTurn ())) {
+				makeTurnTile (board [i, j]);
+				totalturns--;
+			}
 		}
 	}
 		
@@ -102,8 +106,10 @@ public class Board : MonoBehaviour {
 		while (totalturns > 0) {
 			int i = (int)(Random.value * 100) % 10;
 			int j = (int)(Random.value * 100) % 18;
-			makeTurnTile (board [i, j]);
-			totalturns--;
+			if (!(board [i, j].isTurn ())) {
+				makeTurnTile (board [i, j]);
+				totalturns--;
+			}
 		}
 	}
 

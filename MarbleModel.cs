@@ -35,8 +35,10 @@ public class MarbleModel : MonoBehaviour
 	}
 
 	void Update () {
-		clock = clock + Time.deltaTime;
-		transform.eulerAngles = new Vector3(0,0,-360*clock*owner.speed);
+		if (owner.gm.go) {
+			clock = clock + Time.deltaTime;
+			transform.eulerAngles = new Vector3 (0, 0, -360 * clock * owner.speed);
+		}
 	}
 }
 

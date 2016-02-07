@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour {
 
 	void Start () {
 		createBoard ();
+		createMarbles ();
 	}
 
 	void createBoard(){
@@ -40,7 +41,7 @@ public class GameManager : MonoBehaviour {
 		int ypos = ((Screen.height)-(60))/2;
 		if (!go && GUI.Button (new Rect (xpos, ypos, 150, 60), "START")) {
 			go = true;
-			beginLevel();
+			//beginLevel();
 		}
 	}
 		
@@ -62,9 +63,9 @@ public class GameManager : MonoBehaviour {
 		marble.name = "Marble "+marbles.Count;						
 	}
 
-	private void beginLevel(){
+	/*private void beginLevel(){
 		createMarbles ();
-	}
+	}*/
 
 	private void createMarbleFolder(){
 		marbleFolder = new GameObject ();
@@ -74,7 +75,7 @@ public class GameManager : MonoBehaviour {
 
 	private void createMarbles(){
 		createMarbleFolder ();
-		while (numMarbles < 1) {
+		while (numMarbles < 5) {
 			int i = (int)(Random.value * 100) % 10;
 			int j = (int)(Random.value * 100) % 18;
 
