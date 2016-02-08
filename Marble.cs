@@ -10,12 +10,19 @@ public class Marble : MonoBehaviour {
 	private MarbleModel model;		
 	public float x;
 	public float y;
-	public float speed = .5f;
+	public float speed = 2f;
 	public Vector2 direction;
+	public Vector2 destDir;
 	public GameManager gm;		
 
 	public Tile currTile;
 	public Tile nextTile;
+
+	public bool isTurning = false;
+	public float clock = 0f;
+	public float turnStartTime = 0f;
+	public float turnClock = 0f;
+	public float p;
 
 	public Vector3 currpos;
 	public Vector3 destpos;
@@ -28,73 +35,186 @@ public class Marble : MonoBehaviour {
 
 		currTile = tile;
 		currTile.marbles.Add (this);
-		getDirection (direction);
-		getNextSquare ();
 
 		var modelObject = GameObject.CreatePrimitive(PrimitiveType.Quad);	
 		modelObject.layer = 8;
 		model = modelObject.AddComponent<MarbleModel>();	
 		model.init(x, y, this);	
+
+		getDirection (direction);
+		getNextSquare ();
 	}
 
 	void Update(){
 		if (gm.go) {
+			clock += Time.deltaTime;
+			turnClock += Time.deltaTime;
 			updateCoordinates ();
 			updateDistances ();
-			move ();
+			p = (turnClock*speed*2);
+			if (isTurning) {
+				turn ();
+			} else {
+				move ();
+			}
 		}
 	}
 
 	private void updateLocation(){
 		checkTurn ();
-		getNextSquare ();
+		if (!(currTile.isTurn ())) {
+			getNextSquare ();
+		}
+	}
+
+	private void finishTurn(){
+		if (direction.Equals (N)) {
+			goN ();
+		} else if (direction.Equals (S)) {
+			goS ();
+		} else if (direction.Equals (E)) {
+			goE ();
+		} else {
+			goW ();
+		}
+	}
+
+	private void goN(){
+		this.gameObject.transform.position = new Vector3 (nextTile.x, (nextTile.y - .5f), -1f);
+		updateCurrSquare ();
+		this.x = currTile.x;
+		this.y = currTile.y-.5f;
+		updateLocation ();
+	}
+
+	private void goS(){
+		this.gameObject.transform.position = new Vector3 (nextTile.x, (nextTile.y + .5f), -1f);
+		updateCurrSquare ();
+		this.x = currTile.x;
+		this.y = currTile.y+.5f;
+		updateLocation ();
+	}
+
+	private void goE(){
+		this.gameObject.transform.position = new Vector3 ((nextTile.x-.5f), nextTile.y, -1f);
+		updateCurrSquare ();
+		this.x = currTile.x-.5f;
+		this.y = currTile.y;
+		updateLocation ();
+	}
+
+	private void goW(){
+		this.gameObject.transform.position = new Vector3 ((nextTile.x + .5f), nextTile.y, -1f);
+		updateCurrSquare ();
+		this.x = currTile.x+.5f;
+		this.y = currTile.y;
+		updateLocation ();
 	}
 
 	private void move(){
 		if (this.x > 9.55) {
-			this.gameObject.transform.position = new Vector3 ((nextTile.x - .5f), nextTile.y, -1f);
-			updateCurrSquare ();
-			this.x = currTile.x-.5f;
-			this.y = currTile.y;
-			updateLocation ();
+			goE ();
 		} else if (this.x < -9.55) {
-			this.gameObject.transform.position = new Vector3 ((nextTile.x + .5f), nextTile.y, -1f);
-			updateCurrSquare ();
-			this.x = currTile.x+.5f;
-			this.y = currTile.y;
-			updateLocation ();
+			goW ();
 		} else if (this.y > 5f) {
-			this.gameObject.transform.position = new Vector3 (nextTile.x, (nextTile.y - .5f), -1f);
-			updateCurrSquare ();
-			this.x = currTile.x;
-			this.y = currTile.y-.5f;
-			updateLocation ();
+			goN ();
 		} else if (this.y < -5f) {
-			this.gameObject.transform.position = new Vector3 (nextTile.x, (nextTile.y + .5f), -1f);
-			updateCurrSquare ();
-			this.x = currTile.x;
-			this.y = currTile.y+.5f;
-			updateLocation ();
+			goS ();
 		}
 		else if ((direction * speed * Time.deltaTime).magnitude < destdist) {
 			this.gameObject.transform.Translate (direction * speed * Time.deltaTime);
 		}
 		else {
-			//print ("ELSE");
-			this.gameObject.transform.position = new Vector3(nextTile.x, nextTile.y, -1f);
-			updateCurrSquare ();
-			this.x = currTile.x;
-			this.y = currTile.y;
-			updateLocation ();
+			if (direction.Equals (N)) {
+				goN ();
+			} else if (direction.Equals (S)) {
+				goS ();
+			} else if (direction.Equals (E)) {
+				goE ();
+			} else {
+				goW ();
+			}
 		}
 	}
 
 	private void checkTurn(){
-		//print ("inside check turn!");
-		//print (currTile.isTurn ());
 		if (currTile.isTurn ()) {
-			direction = currTile.getNewDirection (direction);
+			destDir = currTile.getNewDirection (direction);
+			getNextTileTurning ();
+			if (!(direction.Equals(destDir))) {
+				isTurning = true;
+				turnStartTime = clock;
+				turnClock = 0f;
+				//turn ();
+			}
 		} 
+	}
+
+	public void turnHelper(){
+		if (currTile.S && currTile.E) {
+			//going N to E
+			if (direction.Equals (N)) {
+				x = currTile.x+.5f+Mathf.Cos(Mathf.PI-(p*Mathf.PI/2))/2;
+				y = currTile.y-.5f+Mathf.Sin(Mathf.PI-(p*Mathf.PI/2))/2;
+				this.gameObject.transform.position = new Vector3 (x, y, 0);
+			}
+			//going W to S
+			else if (direction.Equals (W)) {
+				x = currTile.x+.5f+Mathf.Cos(Mathf.PI/2+(p*Mathf.PI/2))/2;
+				y = currTile.y-.5f+Mathf.Sin(Mathf.PI/2+(p*Mathf.PI/2))/2;
+				this.gameObject.transform.position = new Vector3 (x, y, 0);
+			}
+		} else if (currTile.N && currTile.E) {
+			//going S to E
+			if (direction.Equals (S)) {
+				x = currTile.x+.5f+Mathf.Cos(Mathf.PI+(p*Mathf.PI/2))/2;
+				y = currTile.y+.5f+Mathf.Sin(Mathf.PI+(p*Mathf.PI/2))/2;
+				this.gameObject.transform.position = new Vector3 (x, y, 0);
+			}
+			//going W to N
+			else if (direction.Equals (W)) {
+				x = currTile.x+.5f+Mathf.Cos(3*Mathf.PI/2-(p*Mathf.PI/2))/2;
+				y = currTile.y+.5f+Mathf.Sin(3*Mathf.PI/2-(p*Mathf.PI/2))/2;
+				this.gameObject.transform.position = new Vector3 (x, y, 0);
+			}
+		} else if (currTile.N && currTile.W) {
+			//going S to W
+			if (direction.Equals (S)) {
+				x = currTile.x-.5f+Mathf.Cos(0-p*Mathf.PI/2)/2;
+				y = currTile.y+.5f+Mathf.Sin(0-p*Mathf.PI/2)/2;
+				this.gameObject.transform.position = new Vector3 (x, y, 0);
+			}
+			//going E to N
+			else if (direction.Equals (E)) {
+				x = currTile.x-.5f+Mathf.Cos(3*Mathf.PI/2+(p*Mathf.PI/2))/2;
+				y = currTile.y+.5f+Mathf.Sin(3*Mathf.PI/2+(p*Mathf.PI/2))/2;
+				this.gameObject.transform.position = new Vector3 (x, y, 0);
+			}
+		} else if (currTile.S && currTile.W) {
+			//going N to W
+			if (direction.Equals (N)) {
+				x = currTile.x-.5f+Mathf.Cos(p*Mathf.PI/2)/2;
+				y = currTile.y-.5f+Mathf.Sin(p*Mathf.PI/2)/2;
+				this.gameObject.transform.position = new Vector3 (x, y, 0);
+			}
+			//going E to S
+			else if (direction.Equals (E)) {
+				x = currTile.x-.5f+Mathf.Cos(Mathf.PI/2-(p*Mathf.PI/2))/2;
+				y = currTile.y-.5f+Mathf.Sin(Mathf.PI/2-(p*Mathf.PI/2))/2;
+				this.gameObject.transform.position = new Vector3 (x, y, 0);
+			}
+		}
+		if(clock-turnStartTime > ((1/speed)/2)){
+			isTurning = false;
+			direction = destDir;
+			finishTurn ();
+		}
+	}
+
+	public void turn(){
+		if(isTurning){
+			turnHelper ();
+		}
 	}
 
 	private void getDirection(int dir){
@@ -102,13 +222,13 @@ public class Marble : MonoBehaviour {
 			direction = N;
 		} else if (dir == 1) {
 			direction = E;
-			//model.transform.eulerAngles = new Vector3(0,0,270);
+			model.transform.eulerAngles = new Vector3(0,0,270);
 		} else if (dir == 2) {
 			direction = S;
-			//model.transform.eulerAngles = new Vector3(0,0,180);
+			model.transform.eulerAngles = new Vector3(0,0,180);
 		} else {
 			direction = W;
-			//model.transform.eulerAngles = new Vector3(0,0,90);
+			model.transform.eulerAngles = new Vector3(0,0,90);
 		}
 
 	}
@@ -136,16 +256,36 @@ public class Marble : MonoBehaviour {
 		currTile.marbles.Add (this);
 	}
 
+	private void getNextTileTurning (){
+		if (destDir.Equals (N)) {
+			nextTile = (Tile)currTile.getNeighbors() [0];
+			destpos = new Vector3 (nextTile.x, nextTile.y-.5f, -1);
+		} else if (destDir.Equals (S)) {
+			nextTile = (Tile)currTile.getNeighbors() [1];
+			destpos = new Vector3 (nextTile.x, nextTile.y+.5f, -1);
+		} else if (destDir.Equals (E)) {
+			nextTile = (Tile)currTile.getNeighbors() [3];
+			destpos = new Vector3 (nextTile.x-.5f, nextTile.y, -1);
+		} else {
+			nextTile = (Tile)currTile.getNeighbors() [2];
+			destpos = new Vector3 (nextTile.x+.5f, nextTile.y, -1);
+		}
+	}
+
 	private void getNextSquare(){
 		if (direction.Equals (N)) {
 			nextTile = (Tile)currTile.getNeighbors() [0];
+			destpos = new Vector3 (nextTile.x, nextTile.y-.5f, -1);
 		} else if (direction.Equals (S)) {
 			nextTile = (Tile)currTile.getNeighbors() [1];
+			destpos = new Vector3 (nextTile.x, nextTile.y+.5f, -1);
 		} else if (direction.Equals (E)) {
 			nextTile = (Tile)currTile.getNeighbors() [3];
+			destpos = new Vector3 (nextTile.x-.5f, nextTile.y, -1);
 		} else {
 			nextTile = (Tile)currTile.getNeighbors() [2];
+			destpos = new Vector3 (nextTile.x+.5f, nextTile.y, -1);
 		}
-		destpos = new Vector3 (nextTile.x, nextTile.y, -1);
+		//destpos = new Vector3 (nextTile.x, nextTile.y, -1);
 	}
 }

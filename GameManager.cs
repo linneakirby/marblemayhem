@@ -82,6 +82,13 @@ public class GameManager : MonoBehaviour {
 			int direction = (int)(Random.value * 100) % 4;
 
 			Tile t = boardmanager.get (i, j);
+
+			//make sure marbles don't start on turns
+			while (t.isTurn ()) {
+				i = (int)(Random.value * 100) % 10;
+				j = (int)(Random.value * 100) % 18;
+				t = boardmanager.get (i, j);
+			}
 			makeMarble (direction, t);
 			numMarbles++;
 		}
