@@ -9,6 +9,7 @@ public class TileModel : MonoBehaviour
 	private float clock;		// Keep track of time since creation for animation.
 	private Tile owner;			// Pointer to the parent object.
 	private Material mat;		// Material for setting/changing texture and color.
+	private Renderer rend;
 
 	public void init(float row, float col, int tiletype, Tile owner) {
 		this.owner = owner;
@@ -24,10 +25,12 @@ public class TileModel : MonoBehaviour
 	}
 		
 	private void addTexture(){
-		mat = GetComponent<Renderer>().material;
+		/*mat = GetComponent<Renderer>().material;
 		mat.mainTexture = Resources.Load<Texture2D>("Textures/tile"+tiletype);	
 		mat.color = new Color(1,1,1);											
-		mat.shader = Shader.Find ("Transparent/Diffuse");
+		mat.shader = Shader.Find ("Transparent/Diffuse");*/
+		rend = GetComponent<Renderer> ();
+		rend.material = Resources.Load<Material> ("Material/tile"+tiletype);
 	}
 
 	void Start () {

@@ -13,6 +13,7 @@ public class MarbleModel : MonoBehaviour
 	private float clock;		
 	private Marble owner;		
 	private Material mat;	
+	private Renderer rend;
 
 	public void init(float x, float y, Marble owner) {
 		this.owner = owner;
@@ -23,11 +24,14 @@ public class MarbleModel : MonoBehaviour
 		transform.localPosition = new Vector3(0,0,-1);		
 		name = "Marble Model";									
 
-		mat = GetComponent<Renderer>().material;	
+		rend = GetComponent<Renderer> ();
+		rend.material = Resources.Load<Material> ("Material/Marble");
+
+		/*mat = GetComponent<Renderer>().material;
 		mat.renderQueue = 4000;
 		mat.mainTexture = Resources.Load<Texture2D>("Textures/marble");	
 		mat.color = new Color(1,1,1);											
-		mat.shader = Shader.Find ("Transparent/Diffuse");	
+		mat.shader = Shader.Find ("Transparent/Diffuse");*/
 	}
 
 	void Start () {
