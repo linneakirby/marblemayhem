@@ -28,7 +28,7 @@ public class Tile : MonoBehaviour {
 	public ArrayList neighbors = new ArrayList();
 
 	void Update(){
-		if (Input.GetMouseButtonUp(0) && isTurn() && !hasMarble()) {
+		if (Input.GetMouseButtonUp(0) && isTurn() && !hasMarble() && gm.go && !gm.pause) {
 			Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 			float mouseX = worldPos.x;
 			float mouseY = worldPos.y;
@@ -36,7 +36,7 @@ public class Tile : MonoBehaviour {
 				rotateR ();
 			}
 		}
-		if (Input.GetMouseButtonUp(1) && isTurn() && !hasMarble()) {
+		if (Input.GetMouseButtonUp(1) && isTurn() && !hasMarble() && gm.go && !gm.pause) {
 			Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 			float mouseX = worldPos.x;
 			float mouseY = worldPos.y;
@@ -69,7 +69,6 @@ public class Tile : MonoBehaviour {
 		E = true;
 
 		var modelObject2 = GameObject.CreatePrimitive (PrimitiveType.Quad);
-
 		model2 = modelObject2.AddComponent<TileModel> ();
 		model2.init (x, y, 2, this);
 

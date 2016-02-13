@@ -24,6 +24,8 @@ public class Marble : MonoBehaviour {
 	public float turnClock = 0f;
 	public float p;
 
+	public int score;
+
 	public Vector3 currpos;
 	public Vector3 destpos;
 	public float destdist;
@@ -32,6 +34,8 @@ public class Marble : MonoBehaviour {
 		this.x = tile.x;
 		this.y = tile.y;
 		this.gm = gm;
+
+		score = 0;
 
 		currTile = tile;
 		currTile.marbles.Add (this);
@@ -46,7 +50,7 @@ public class Marble : MonoBehaviour {
 	}
 
 	void Update(){
-		if (gm.go) {
+		if (gm.go && !gm.pause) {
 			clock += Time.deltaTime;
 			turnClock += Time.deltaTime;
 			updateCoordinates ();

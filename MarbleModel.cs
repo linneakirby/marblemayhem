@@ -21,7 +21,7 @@ public class MarbleModel : MonoBehaviour
 		this.y = y;
 
 		transform.parent = owner.transform;					
-		transform.localPosition = new Vector3(0,0,-1);		
+		transform.localPosition = new Vector3(0,0,-2);		
 		name = "Marble Model";									
 
 		rend = GetComponent<Renderer> ();
@@ -39,7 +39,7 @@ public class MarbleModel : MonoBehaviour
 	}
 
 	void Update () {
-		if (owner.gm.go) {
+		if (owner.gm.go && !owner.gm.pause) {
 			clock = clock + Time.deltaTime;
 			transform.eulerAngles = new Vector3 (0, 0, -360 * clock * owner.speed);
 		}

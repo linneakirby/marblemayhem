@@ -17,8 +17,12 @@ public class TileModel : MonoBehaviour
 		this.col = (int)col;
 		this.tiletype = tiletype;
 
-		transform.parent = owner.transform;					
-		transform.localPosition = new Vector3(0,0,0);		
+		transform.parent = owner.transform;	
+		if (tiletype == 2) {
+			transform.localPosition = new Vector3 (0, 0, -1);
+		} else {
+			transform.localPosition = new Vector3 (0, 0, 0);
+		}
 		name = "Tile Model";									
 
 		addTexture ();

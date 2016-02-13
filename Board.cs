@@ -78,6 +78,7 @@ public class Board : MonoBehaviour {
 		placeColTurns ();
 		placeRemainingTurns ();
 		placeEmptyTiles ();
+
 	}
 		
 	//place at least one turn in every row
