@@ -10,7 +10,8 @@ public class Marble : MonoBehaviour {
 	private MarbleModel model;		
 	public float x;
 	public float y;
-	public float speed = 2f;
+	public float speed = 1.5f;
+	public float cooldown = 0f;
 	public Vector2 direction;
 	public Vector2 destDir;
 	public GameManager gm;		
@@ -25,6 +26,7 @@ public class Marble : MonoBehaviour {
 	public float p;
 
 	public int score;
+	public int health;
 
 	public Vector3 currpos;
 	public Vector3 destpos;
@@ -35,6 +37,7 @@ public class Marble : MonoBehaviour {
 		this.y = tile.y;
 		this.gm = gm;
 
+		health = 5;
 		score = 0;
 
 		currTile = tile;
@@ -42,8 +45,20 @@ public class Marble : MonoBehaviour {
 
 		var modelObject = GameObject.CreatePrimitive(PrimitiveType.Quad);	
 		modelObject.layer = 8;
+		modelObject.tag = "marble";
+		MeshCollider mc = modelObject.GetComponent<MeshCollider> ();
+		mc.enabled = false;
+
+		SphereCollider sc = modelObject.AddComponent<SphereCollider> ();
+		sc.radius = 0.3445716f;
+		//sc.isTrigger = true;
+		Rigidbody rb = modelObject.AddComponent<Rigidbody> ();
+		rb.useGravity = false;
+		rb.isKinematic = false;
+		rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+
 		model = modelObject.AddComponent<MarbleModel>();	
-		model.init(x, y, this);	
+		model.init(x, y, this, modelObject);	
 
 		getDirection (direction);
 		getNextSquare ();

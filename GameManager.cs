@@ -26,19 +26,26 @@ public class GameManager : MonoBehaviour {
 	public float colorProbability = .25f;
 
 	public float timeLeft;
-	private string gameOver = "Game Over";
 	private string timeLeftS;
-	public bool go = false;
-	private bool done = false;
-	public bool pause = false;
+	public bool go;
+	private bool done;
+	public bool pause;
 
-	public int numMarbles = 0;
+	public int numMarbles;
 	private string totalScore = "Score: 0";
 
 	void Start () {
+		go = false;
+		done = false;
+		pause = false;
+		numMarbles = 0;
 		createBoard ();
 		createMarbles ();
 		createGemFolder ();
+	}
+
+	void beginLevel(){
+		timeLeft = 6f;
 	}
 
 	void createBoard(){
@@ -48,31 +55,60 @@ public class GameManager : MonoBehaviour {
 		boardmanager.initBoard (this);
 	}
 
+	void clear(){
+		foreach (Marble m in marbles) {
+			Destroy (m.gameObject);
+		}
+		Destroy (marbleFolder);
+		foreach (Gem g in gems) {
+			Destroy (g.gameObject);
+		}
+		Destroy (gemFolder);
+		boardmanager.clear ();
+	}
+
 	// Start button that disappears once clicked (and triggers the start of the game)
 	void OnGUI () {
 		GUIStyle guiStyle = new GUIStyle();
 		int xpos;
 		int ypos;
-		if (!go || pause) {
+		if ((!go && !done) || (pause && !done)) {
 			guiStyle.fontSize = 80;
-			guiStyle.normal.textColor = Color.cyan;
+			guiStyle.normal.textColor = Color.green;
 			guiStyle.alignment = TextAnchor.MiddleCenter;
-			guiStyle.border = GUI.skin.customStyles[0].border;
+			guiStyle.border = GUI.skin.customStyles [0].border;
 			GUI.color = Color.cyan;
-			xpos = ((Screen.width)-(300))/2;
-			ypos = ((Screen.height)-(50))/2-(Screen.height/3);
+			xpos = ((Screen.width) - (300)) / 2;
+			ypos = ((Screen.height) - (50)) / 2 - (Screen.height / 3);
 			GUI.Label (new Rect (xpos, ypos, 300, 50), "MARBLE MAYHEM", guiStyle);
 
 			guiStyle.fontSize = 20;
-			xpos = ((Screen.width)-(400))/2;
-			ypos = ((Screen.height)-(100))/2-((Screen.height/9));
-			GUI.Label (new Rect(xpos, ypos, 400, 120),"INSTRUCTIONS\n" +
-				"Right- and left-click on turns to change their orientation\n" +
-				"Press space to pause\n"+
-				"Collect as many gems as possible before time runs out!\n",guiStyle);
+			guiStyle.normal.textColor = Color.cyan;
+			xpos = ((Screen.width) - (400)) / 2;
+			ypos = ((Screen.height) - (120)) / 2 - (Screen.height / 30);
+			GUI.Label (new Rect (xpos, ypos, 400, 120), "INSTRUCTIONS\n" +
+			"Right- and left-click on turns to change their orientation\n" +
+			"Press space to pause\n" +
+			"Temporarily boost marbles by clicking on them\n" +
+			"Marbles each have 5 health and lose 1 each time they collide\n" +
+			"Watch out for pits!\n"+
+			"Collect as many gems as possible before time runs out!\n", guiStyle);
+		} else if (done) {
+			guiStyle.normal.textColor = Color.red;
+			guiStyle.fontSize = 80;
+			guiStyle.alignment = TextAnchor.MiddleCenter;
+			xpos = ((Screen.width) - 300) / 2;
+			ypos = ((Screen.height) - 50) / 2 - (Screen.height / 6);
+			GUI.Label (new Rect (xpos, ypos, 300, 50), "GAME OVER", guiStyle);
+			xpos = ((Screen.width)-(150))/2;
+			ypos = ((Screen.height)-(60))/2+(Screen.height/6);
+			if (done && GUI.Button (new Rect (xpos, ypos, 150, 60), "RESTART?")) {
+				clear ();
+				Start ();
+			}
 		}
 		xpos = ((Screen.width)-(150))/2;
-		ypos = ((Screen.height)-(60))/2+(Screen.height/7);
+		ypos = ((Screen.height)-(60))/2+(Screen.height/4);
 		if (!done && pause) {
 			guiStyle.fontSize = 60;
 			guiStyle.normal.textColor = Color.green;
@@ -84,24 +120,11 @@ public class GameManager : MonoBehaviour {
 			beginLevel ();
 		} else if(go){
 			GUI.color = Color.yellow;
-			if (timeLeft < 0) {
-				done = true;
-				go = false;
-				GUI.color = Color.red;
-				GUI.Label (new Rect (xpos, ypos, 150, 30), "Final " + totalScore, "box");
-				GUI.Label (new Rect (xpos, ypos - 35, 150, 30), gameOver, "box");
-
-			} else {
-				xpos = ((Screen.width) - 150);
-				ypos = ((Screen.height) - 30);
-				GUI.Label (new Rect (xpos, ypos, 150, 30), totalScore, "box");
-				GUI.Label (new Rect (0, ypos, 150, 30), timeLeftS, "box");
-			}
+			xpos = ((Screen.width) - 150);
+			ypos = ((Screen.height) - 30);
+			GUI.Label (new Rect (xpos, ypos, 150, 30), totalScore, "box");
+			GUI.Label (new Rect (0, ypos, 150, 30), timeLeftS, "box");
 		}
-	}
-
-	void beginLevel(){
-		timeLeft = 60f;
 	}
 
 	void checkTime(){
@@ -145,15 +168,21 @@ public class GameManager : MonoBehaviour {
 			int i = (int)(Random.value * 100) % 10;
 			int j = (int)(Random.value * 100) % 18;
 			Tile t = boardmanager.get (i, j);
+			while (t.hasGem) {
+				i = (int)(Random.value * 100) % 10;
+				j = (int)(Random.value * 100) % 18;
+				t = boardmanager.get (i, j);
+			}
 
 			GameObject gemObject = new GameObject();	
 			gemObject.layer = 8;
+			gemObject.tag = "gem";
 			Gem gem = gemObject.AddComponent<Gem>();
 
 			gem.transform.parent = gemFolder.transform;			
 			gem.transform.position = new Vector3(t.x,t.y,-1);
 
-			gem.init(color, this);					
+			gem.init(color, this, t);					
 
 			gems.Add(gem);										
 			gem.name = "Gem "+gems.Count;
@@ -169,6 +198,7 @@ public class GameManager : MonoBehaviour {
 	void makeMarble(int direction, Tile t){
 		GameObject marbleObject = new GameObject();	
 		marbleObject.layer = 8;
+		marbleObject.tag = "marble";
 		Marble marble = marbleObject.AddComponent<Marble>();
 
 		marble.transform.parent = marbleFolder.transform;			
@@ -197,7 +227,7 @@ public class GameManager : MonoBehaviour {
 			Tile t = boardmanager.get (i, j);
 
 			//make sure marbles don't start on turns
-			while (t.isTurn ()) {
+			while (t.isTurn () || t.marbles.Count > 0 || t.isPit()) {
 				i = (int)(Random.value * 100) % 10;
 				j = (int)(Random.value * 100) % 18;
 				t = boardmanager.get (i, j);

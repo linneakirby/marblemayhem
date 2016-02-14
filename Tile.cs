@@ -21,7 +21,9 @@ public class Tile : MonoBehaviour {
 	private int tiletype;
 	private GameManager gm;		
 
+	private bool pit = false;
 	private bool turn = false;
+	public bool hasGem = false;
 
 	public ArrayList marbles = new ArrayList();
 
@@ -74,6 +76,27 @@ public class Tile : MonoBehaviour {
 
 	}
 
+	public void addPit(){
+		this.tiletype = 3;
+
+		pit = true;
+
+		var modelObject2 = GameObject.CreatePrimitive (PrimitiveType.Quad);
+		modelObject2.tag = "pit";
+		model2 = modelObject2.AddComponent<TileModel> ();
+
+		MeshCollider mc = modelObject2.GetComponent<MeshCollider> ();
+		mc.enabled = false;
+
+		BoxCollider bc = modelObject2.AddComponent<BoxCollider> ();
+		bc.size = new Vector3(.5f, .5f, 3);
+		Rigidbody rb = modelObject2.AddComponent<Rigidbody> ();
+		rb.useGravity = false;
+		rb.isKinematic = false;
+
+		model2.init (x, y, 3, this);
+	}
+
 	private bool hasMarble(){
 		if (marbles.Count > 0) {
 			return true;
@@ -90,6 +113,13 @@ public class Tile : MonoBehaviour {
 
 	public bool isTurn(){
 		if (turn) {
+			return true;
+		}
+		return false;
+	}
+
+	public bool isPit(){
+		if(pit){
 			return true;
 		}
 		return false;

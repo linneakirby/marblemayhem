@@ -20,6 +20,9 @@ public class TileModel : MonoBehaviour
 		transform.parent = owner.transform;	
 		if (tiletype == 2) {
 			transform.localPosition = new Vector3 (0, 0, -1);
+		}
+		else if (tiletype == 3) {
+			transform.localPosition = new Vector3 (0, 0, -2);
 		} else {
 			transform.localPosition = new Vector3 (0, 0, 0);
 		}

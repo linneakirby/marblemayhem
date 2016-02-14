@@ -8,22 +8,32 @@ public class GemModel : MonoBehaviour
 	private Gem owner;			// Pointer to the parent object.
 	private Material mat;		// Material for setting/changing texture and color.
 	private Renderer rend;
+	private BoxCollider bc;
 
-	public void init(int gemType, Gem owner) {
+	public void init(int gemType, Gem owner, GameObject modelObject) {
 		this.owner = owner;
 		this.gemType = gemType;
 
 		transform.parent = owner.transform;					// Set the model's parent to the gem.
-		transform.localPosition = new Vector3 (0, 0, -1);		// Center the model on the parent.
+		transform.localPosition = new Vector3 (0, 0, -2);		// Center the model on the parent.
 		name = "Gem Model";									// Name the object.
 
 
 		rend = GetComponent<Renderer> ();
 		rend.material = Resources.Load<Material> ("Material/gem" + gemType);
+
+		bc = modelObject.GetComponent<BoxCollider> ();
 	}
 		
 	void Start () {
 		clock = 0f;
+	}
+
+	void OnCollisionEnter(Collision collision){
+		if (collision.gameObject.tag == "marble") {
+			owner.tile.hasGem = false;
+			Destroy (this.gameObject);
+		}
 	}
 
 	void Update () {
