@@ -42,12 +42,4 @@ public class Gem : MonoBehaviour {
 			timeToLive -= Time.deltaTime;
 		}
 	}
-
-	void OnCollisionEnter(Collision collision){
-		if (collision.gameObject.tag == "marble") {
-			Destroy (this.gameObject);
-		}
-	}
-
-
 }

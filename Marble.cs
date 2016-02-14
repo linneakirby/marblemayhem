@@ -51,7 +51,7 @@ public class Marble : MonoBehaviour {
 
 		SphereCollider sc = modelObject.AddComponent<SphereCollider> ();
 		sc.radius = 0.3445716f;
-		//sc.isTrigger = true;
+		sc.isTrigger = true;
 		Rigidbody rb = modelObject.AddComponent<Rigidbody> ();
 		rb.useGravity = false;
 		rb.isKinematic = false;

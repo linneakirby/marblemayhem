@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void beginLevel(){
-		timeLeft = 6f;
+		timeLeft = 60f;
 	}
 
 	void createBoard(){
@@ -56,12 +56,20 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void clear(){
-		foreach (Marble m in marbles) {
-			Destroy (m.gameObject);
+		if (marbles.Count > 0) {
+			foreach (Marble m in marbles) {
+				if (m != null) {
+					Destroy (m.gameObject);
+				}
+			}
 		}
 		Destroy (marbleFolder);
-		foreach (Gem g in gems) {
-			Destroy (g.gameObject);
+		if (gems.Count > 0) {
+			foreach (Gem g in gems) {
+				if (g != null) {
+					Destroy (g.gameObject);
+				}
+			}
 		}
 		Destroy (gemFolder);
 		boardmanager.clear ();
@@ -93,7 +101,9 @@ public class GameManager : MonoBehaviour {
 			"Marbles each have 5 health and lose 1 each time they collide\n" +
 			"Watch out for pits!\n"+
 			"Collect as many gems as possible before time runs out!\n", guiStyle);
-		} else if (done) {
+		} else if (done || marbles.Count == 0) {
+			done = true;
+			go = false;
 			guiStyle.normal.textColor = Color.red;
 			guiStyle.fontSize = 80;
 			guiStyle.alignment = TextAnchor.MiddleCenter;

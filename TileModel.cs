@@ -10,8 +10,9 @@ public class TileModel : MonoBehaviour
 	private Tile owner;			// Pointer to the parent object.
 	private Material mat;		// Material for setting/changing texture and color.
 	private Renderer rend;
+	private BoxCollider bc;
 
-	public void init(float row, float col, int tiletype, Tile owner) {
+	public void init(float row, float col, int tiletype, Tile owner, GameObject modelObject) {
 		this.owner = owner;
 		this.row = (int)row;
 		this.col = (int)col;
@@ -23,6 +24,7 @@ public class TileModel : MonoBehaviour
 		}
 		else if (tiletype == 3) {
 			transform.localPosition = new Vector3 (0, 0, -2);
+			bc = modelObject.GetComponent<BoxCollider> ();
 		} else {
 			transform.localPosition = new Vector3 (0, 0, 0);
 		}
@@ -46,6 +48,13 @@ public class TileModel : MonoBehaviour
 
 	void Update () {
 		clock = clock + Time.deltaTime;
+	}
+
+	void OnTriggerEnter(Collider other){
+		if (other.gameObject.tag == "marble") {
+			print ("MARBLE LOST!");
+			Destroy (other.gameObject);
+		}
 	}
 }
 

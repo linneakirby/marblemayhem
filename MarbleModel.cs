@@ -16,11 +16,14 @@ public class MarbleModel : MonoBehaviour
 	private Renderer rend;
 	private SphereCollider sc;
 	private Rigidbody2D rigid;
+	private float hit;
 
 	public void init(float x, float y, Marble owner, GameObject modelObject) {
 		this.owner = owner;
 		this.x = x;
 		this.y = y;
+
+		hit = 0;
 
 		transform.parent = owner.transform;					
 		transform.localPosition = new Vector3(0,0,-2);		
@@ -51,7 +54,7 @@ public class MarbleModel : MonoBehaviour
 		}
 	}
 
-	void OnCollisionEnter(Collision collision){
+	/*void OnCollisionEnter(Collision collision){
 		if (collision.gameObject.tag == "gem") {
 			owner.score++;
 		} else if (collision.gameObject.tag == "marble") {
@@ -64,13 +67,15 @@ public class MarbleModel : MonoBehaviour
 			print ("Marble destroyed!");
 			Destroy (this.gameObject);
 		}
-	}
+	}*/
 
 	void OnTriggerEnter(Collider other){
-		/*if (other.gameObject.tag == "gem") {
+		if (other.gameObject.tag == "gem") {
 			print ("Plus one!");
+			Destroy (other.gameObject);
 			owner.score++;
-		} else */if (other.gameObject.tag == "marble") {
+		} else if (other.gameObject.tag == "marble") {
+			hit = 1;
 			owner.health--;
 			print ("Marble hit!");
 			if (owner.health <= 0) {
@@ -84,13 +89,17 @@ public class MarbleModel : MonoBehaviour
 	}
 
 	void Update () {
+		hit -= Time.deltaTime;
 		if (owner.speed > 1.5f) {
 			rend.material.color = Color.green;
 			owner.speed -= Time.deltaTime;
 		} else if (owner.cooldown > 0) {
 			rend.material.color = Color.red;
 			owner.cooldown -= Time.deltaTime;
-		} else {
+		} else if (hit > 0) {
+			rend.material.color = Color.yellow;
+		}
+		else {
 			rend.material.color = Color.white;
 		}
 		if (owner.gm.go && !owner.gm.pause) {

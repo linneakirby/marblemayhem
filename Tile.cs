@@ -72,7 +72,7 @@ public class Tile : MonoBehaviour {
 
 		var modelObject2 = GameObject.CreatePrimitive (PrimitiveType.Quad);
 		model2 = modelObject2.AddComponent<TileModel> ();
-		model2.init (x, y, 2, this);
+		model2.init (x, y, 2, this, modelObject2);
 
 	}
 
@@ -89,12 +89,12 @@ public class Tile : MonoBehaviour {
 		mc.enabled = false;
 
 		BoxCollider bc = modelObject2.AddComponent<BoxCollider> ();
-		bc.size = new Vector3(.5f, .5f, 3);
+		bc.size = new Vector3(.1f, .1f, 3);
 		Rigidbody rb = modelObject2.AddComponent<Rigidbody> ();
 		rb.useGravity = false;
 		rb.isKinematic = false;
 
-		model2.init (x, y, 3, this);
+		model2.init (x, y, 3, this, modelObject2);
 	}
 
 	private bool hasMarble(){
@@ -107,7 +107,7 @@ public class Tile : MonoBehaviour {
 	public void addEmptyTexture(){
 		var modelObject1 = GameObject.CreatePrimitive (PrimitiveType.Quad);	
 		model1 = modelObject1.AddComponent<TileModel> ();						
-		model1.init (x, y, 1, this);
+		model1.init (x, y, 1, this, modelObject1);
 	}
 		
 

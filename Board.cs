@@ -33,9 +33,9 @@ public class Board : MonoBehaviour {
 			//find S neighbor
 			tile.neighbors.Add (board [mod((tile.i + 1),10), tile.j]);
 			//find W neighbor
-			tile.neighbors.Add (board [tile.i, mod((tile.j - 1),19)]);
+			tile.neighbors.Add (board [tile.i, mod((tile.j - 1),18)]);
 			//find E neighbor
-			tile.neighbors.Add (board [tile.i, mod((tile.j + 1),19)]);
+			tile.neighbors.Add (board [tile.i, mod((tile.j + 1),18)]);
 		}
 	}
 
@@ -43,13 +43,13 @@ public class Board : MonoBehaviour {
 	public void initBoard(GameManager gm){
 		this.gm = gm;
 		createTileFolder ();
-		board = new Tile[10, 19];
-		float x = -9.0f;
+		board = new Tile[10, 18];
+		float x = -8.5f;
 		float y = 4.5f;
 		Tile tile;
 
 		for(int i=0; i<10; i++){
-			for(int j=0; j<19; j++){
+			for(int j=0; j<18; j++){
 				tile = createTile ((float)(x + (j /** 1.065*/)), (float)(y - i), i, j);
 				board [i, j] = tile;
 			}
@@ -93,7 +93,7 @@ public class Board : MonoBehaviour {
 	private void placePits(){
 		while (totalpits > 0) {
 			int i = (int)(Random.value * 100) % 10;
-			int j = (int)(Random.value * 100) % 19;
+			int j = (int)(Random.value * 100) % 18;
 			if (!(board [i, j].isTurn ()) && !(board [i,j].isPit())) {
 				makePitTile (board [i, j]);
 				totalpits--;
@@ -104,7 +104,7 @@ public class Board : MonoBehaviour {
 	//place at least one turn in every row
 	private void placeRowTurns(){
 		for (int i = 0; i < 10; i++) { 
-			int j = (int)(Random.value * 100) % 19;
+			int j = (int)(Random.value * 100) % 18;
 			if (!(board [i, j].isTurn ())) {
 				makeTurnTile (board [i, j]);
 				totalturns--;
@@ -114,7 +114,7 @@ public class Board : MonoBehaviour {
 		
 	//place at least one turn in every column
 	private void placeColTurns(){
-		for (int j = 0; j < 19; j++) { 
+		for (int j = 0; j < 18; j++) { 
 			int i = (int)(Random.value * 100) % 10;
 			if (!(board [i, j].isTurn ())) {
 				makeTurnTile (board [i, j]);
@@ -126,7 +126,7 @@ public class Board : MonoBehaviour {
 	private void placeRemainingTurns(){
 		while (totalturns > 0) {
 			int i = (int)(Random.value * 100) % 10;
-			int j = (int)(Random.value * 100) % 19;
+			int j = (int)(Random.value * 100) % 18;
 			if (!(board [i, j].isTurn ())) {
 				makeTurnTile (board [i, j]);
 				totalturns--;
